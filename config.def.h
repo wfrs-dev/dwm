@@ -10,26 +10,35 @@ static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display 
 static const int showsystray        = 1;        /* 0 means no systray */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
-static const char *fonts[]          = { "monospace:size=10" };
-static const char dmenufont[]       = "monospace:size=10";
-static const char col_gray1[]       = "#222222";
-static const char col_gray2[]       = "#444444";
-static const char col_gray3[]       = "#bbbbbb";
-static const char col_gray4[]       = "#eeeeee";
-static const char col_cyan[]        = "#005577";
+static const char *fonts[]          = { "IosevkaTermSlab NFP:size=10" };
+static const char dmenufont[]       = "IosevkaTermSlab NFP:size=10";
+/* Esquema de Colores Fedora */
+static const char col_bg_norm[]     = "#1c252c"; /* Fondo inactivo (Dark Navy) */
+static const char col_border_norm[] = "#3e4b59"; /* Borde inactivo (Slate Gray) */
+static const char col_fg_norm[]     = "#a4b0be"; /* Texto inactivo (Light Gray) */
+
+static const char col_bg_sel[]      = "#3c6eb4"; /* Fondo enfocado (Fedora Blue) */
+static const char col_border_sel[]  = "#518be8"; /* Borde enfocado (Bright Fedora Blue) */
+static const char col_fg_sel[]      = "#ffffff"; /* Texto enfocado (Blanco) */
+
 static const char *colors[][3]      = {
-	/*               fg         bg         border   */
-	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
-	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
+	/*               fg           bg           border   */
+	[SchemeNorm] = { col_fg_norm, col_bg_norm, col_border_norm },
+	[SchemeSel]  = { col_fg_sel,  col_bg_sel,  col_border_sel  },
 };
 
 static const char *const autostart[] = {
-	"st", NULL,
+    "udiskie", NULL,
+    "sh", "~/.config/wscripts/x/screen.sh", NULL,
+    "feh", "--bg-fill", "~/.config/wallpaper.jpg", NULL,
+    "nm-applet", NULL,
+    "sh", "-c", "conky -c ~/.config/conky/conky.lua 2>/dev/null | dwm-setstatus", NULL,
+	"alacritty", NULL,
 	NULL /* terminate */
 };
 
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static const char *tags[] = { "󰎥 ", "󰎨 ", "󰎫 ", "󰎲 ", "󰎯 ", "󰎴 ", "󰎷 ", "󰎺 ", "󰎽 " };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -37,8 +46,8 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
-	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
-	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
+	{ "",     NULL,       NULL,       0,            1,           -1 },
+	// { "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
 };
 
 /* layout(s) */
@@ -50,13 +59,13 @@ static const int refreshrate = 120;  /* refresh rate (per second) for client mov
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
-	{ "[]=",      tile },    /* first entry is default */
-	{ "><>",      NULL },    /* no layout function means floating behavior */
-	{ "[M]",      monocle },
+	{ " ",      tile },    /* first entry is default */
+	{ " ",      NULL },    /* no layout function means floating behavior */
+	{ " ",      monocle },
 };
 
 /* key definitions */
-#define MODKEY Mod1Mask
+#define MODKEY Mod4Mask
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -68,44 +77,81 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-p", "  " "-fn", dmenufont, "-nb", col_bg_norm, "-nf", col_fg_norm, "-sb", col_bg_sel, "-sf", col_fg_sel, NULL };
 static const char *termcmd[]  = { "st", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
-	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY,                       XK_b,      togglebar,      {0} },
-	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
-	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
-	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
-	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
-	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
+
+    /* 1. GESTIÓN DE VENTANAS Y ENFOQUE */
+    // Promueve la ventana enfocada al área principal (Master), o la intercambia con la actual si ya estás en ella.
 	{ MODKEY,                       XK_Return, zoom,           {0} },
-	{ MODKEY,                       XK_Tab,    view,           {0} },
+    // Cambia el foco de la pantalla a la siguiente ventana en la pila.
+	{ MODKEY,                       XK_Tab,    focusstack,     {.i = +1 } },
+    // Cambia el foco de la pantalla a la ventana anterior en la pila.
+	{ MODKEY|ShiftMask,             XK_Tab,    focusstack,     {.i = -1 } },
+    // Cierra de forma limpia la ventana que tiene el foco actual.
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
+    // Lanza la terminal predeterminada
+	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
+    // Muestra/oculta la barra de estado
+	{ MODKEY,                       XK_b,      togglebar,      {0} },
+
+    /* 2. CONTROL DE DISPOSICIÓN Y LAYOUTS */
+    // Activa la disposición dividida estándar (Master a la izquierda, Stack a la derecha).
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
+    // Cambia al modo flotante, permitiendo mover ventanas libremente sobre la pantalla.
 	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
+    // Maximiza la ventana enfocada ocupando toda la pantalla (como vimos antes).
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
+    // Alterna de forma rápida entre el último layout usado y el actual.
 	{ MODKEY,                       XK_space,  setlayout,      {0} },
+    // Reduce horizontalmente el tamaño del área principal (Master).
+	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
+    // Incrementa horizontalmente el tamaño del área principal (Master).
+	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
+    // Incrementa la cantidad de ventanas que pueden estar juntas en el área principal.
+	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
+    // Reduce la cantidad de ventanas permitidas en el área principal (mínimo 1).
+	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
+
+    /* 3. VENTANAS FLOTANTES */
+    // Convierte la ventana enfocada a modo flotante (o la regresa al tiling).
 	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
+
+    /* 4. LANZADOR Y SALIDA */
+    // Ejecuta dmenu en la parte superior para buscar y abrir cualquier aplicación.
+	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
+    // Cierra el proceso de dwm (esto finaliza la sesión gráfica y te regresa al login).
+	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+
+    /* 5. GESTIÓN DE WORKSPACES (TAGS) Y MONITORES */
+    // Alterna entr el ultimo tag usado y el actual.
+	{ MODKEY|ControlMask,           XK_Tab,    view,           {0} },
 	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
+    // Mueve el foco al monitor izquierdo (en configuraciones multipantalla).
 	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
+    // Mueve el foco al monitor derecho.
 	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
+    // Envía la ventana enfocada al monitor de la izquierda.
 	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
+    // Envía la ventana enfocada al monitor de la derecha.
 	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
-	TAGKEYS(                        XK_1,                      0)
-	TAGKEYS(                        XK_2,                      1)
-	TAGKEYS(                        XK_3,                      2)
-	TAGKEYS(                        XK_4,                      3)
-	TAGKEYS(                        XK_5,                      4)
-	TAGKEYS(                        XK_6,                      5)
-	TAGKEYS(                        XK_7,                      6)
-	TAGKEYS(                        XK_8,                      7)
-	TAGKEYS(                        XK_9,                      8)
-	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+    // define TAGKEYS(KEY,TAG):
+    //     MODKEY + KEY => cambia la vista al TAG seleccionado
+    //     MODKEY + Shift + KEY => Mueve la ventana enfocada al TAG seleccionado
+    //     MODKEY + Control + KEY => Muestra en pantalla las ventanas de múltiples tags a la vez.
+    //     MODKEY + Control + Shift + KEY => Asigna la ventana enfocada a múltiples tags simultáneamente.
+	TAGKEYS(XK_ampersand,    0)
+	TAGKEYS(XK_bracketleft,  1)
+	TAGKEYS(XK_braceleft,    2)
+	TAGKEYS(XK_parenleft,    3)
+	TAGKEYS(XK_less,         4)
+	TAGKEYS(XK_greater,      5)
+	TAGKEYS(XK_parenright,   6)
+	TAGKEYS(XK_braceright,   7)
+	TAGKEYS(XK_bracketright, 8)
 };
 
 /* button definitions */
@@ -124,4 +170,3 @@ static const Button buttons[] = {
 	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
-
