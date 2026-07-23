@@ -29,10 +29,11 @@ static const char *colors[][3]      = {
 
 static const char *const autostart[] = {
     "udiskie", NULL,
-    "sh", "~/.config/wscripts/x/screen.sh", NULL,
-    "feh", "--bg-fill", "~/.config/wallpaper.jpg", NULL,
+    "sh", "/home/walter/.config/wscripts/x/screen.sh", NULL,
+    "feh", "--bg-fill", "/home/walter/.config/wallpaper.png", NULL,
     "nm-applet", NULL,
-    "sh", "-c", "conky -c ~/.config/conky/conky.lua 2>/dev/null | dwm-setstatus", NULL,
+    "setxkbmap", "latam", "ldvd", NULL,
+    "sh", "-c", "conky -c /home/walter/.config/conky/conky.lua 2>/dev/null | dwm-setstatus", NULL,
 	"alacritty", NULL,
 	NULL /* terminate */
 };
@@ -46,7 +47,7 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
-	{ "",     NULL,       NULL,       0,            1,           -1 },
+	{ "--",     NULL,       NULL,       0,            1,           -1 },
 	// { "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
 };
 
@@ -77,7 +78,7 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-p", "  " "-fn", dmenufont, "-nb", col_bg_norm, "-nf", col_fg_norm, "-sb", col_bg_sel, "-sf", col_fg_sel, NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-p", "  Launch: ", "-fn", dmenufont, "-nb", col_bg_norm, "-nf", col_fg_norm, "-sb", col_bg_sel, "-sf", col_fg_sel, NULL };
 static const char *termcmd[]  = { "st", NULL };
 
 static const Key keys[] = {
@@ -102,7 +103,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
     // Cambia al modo flotante, permitiendo mover ventanas libremente sobre la pantalla.
 	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
-    // Maximiza la ventana enfocada ocupando toda la pantalla (como vimos antes).
+    // Maximiza la ventana enfocada ocupando toda la pantalla
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
     // Alterna de forma rápida entre el último layout usado y el actual.
 	{ MODKEY,                       XK_space,  setlayout,      {0} },
