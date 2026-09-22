@@ -12,13 +12,13 @@ static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const char *fonts[]          = { "IosevkaTermSlab NFP:size=10" };
 static const char dmenufont[]       = "IosevkaTermSlab NFP:size=10";
-/* Esquema de Colores Fedora */
-static const char col_bg_norm[]     = "#1c252c"; /* Fondo inactivo (Dark Navy) */
-static const char col_border_norm[] = "#3e4b59"; /* Borde inactivo (Slate Gray) */
-static const char col_fg_norm[]     = "#a4b0be"; /* Texto inactivo (Light Gray) */
+/* Esquema de Colores Arch Linux */
+static const char col_bg_norm[]     = "#1d2021"; /* Fondo inactivo (Arch Dark) */
+static const char col_border_norm[] = "#3b4252"; /* Borde inactivo (Arch Gray) */
+static const char col_fg_norm[]     = "#d8dee9"; /* Texto inactivo (Arch Light Gray) */
 
-static const char col_bg_sel[]      = "#3c6eb4"; /* Fondo enfocado (Fedora Blue) */
-static const char col_border_sel[]  = "#518be8"; /* Borde enfocado (Bright Fedora Blue) */
+static const char col_bg_sel[]      = "#1793d1"; /* Fondo enfocado (Arch Blue) */
+static const char col_border_sel[]  = "#33a1e0"; /* Borde enfocado (Bright Arch Blue) */
 static const char col_fg_sel[]      = "#ffffff"; /* Texto enfocado (Blanco) */
 
 static const char *colors[][3]      = {
@@ -29,17 +29,21 @@ static const char *colors[][3]      = {
 
 static const char *const autostart[] = {
     "udiskie", NULL,
+    "dunst", NULL,
     "sh", "/home/walter/.config/wscripts/x/screen.sh", NULL,
-    "feh", "--bg-fill", "/home/walter/.config/wallpaper.png", NULL,
     "nm-applet", NULL,
+    "picom", "-b", "--backend", "glx", NULL,
     "setxkbmap", "latam", "ldvd", NULL,
     "sh", "-c", "conky -c /home/walter/.config/conky/conky.lua 2>/dev/null | dwm-setstatus", NULL,
+    "numlockx", NULL,
 	"alacritty", NULL,
+	"clipcatd", NULL,
+    "feh", "--bg-fill", "/home/walter/.config/wallpaper.jpg", NULL,
 	NULL /* terminate */
 };
 
 /* tagging */
-static const char *tags[] = { "󰎥 ", "󰎨 ", "󰎫 ", "󰎲 ", "󰎯 ", "󰎴 ", "󰎷 ", "󰎺 ", "󰎽 " };
+static const char *tags[] = { "󰎥", "󰎨", "󰎫", "󰎲", "󰎯", "󰎴", "󰎷", "󰎺", "󰎽" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -79,7 +83,8 @@ static const Layout layouts[] = {
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-p", "  Launch: ", "-fn", dmenufont, "-nb", col_bg_norm, "-nf", col_fg_norm, "-sb", col_bg_sel, "-sf", col_fg_sel, NULL };
-static const char *termcmd[]  = { "st", NULL };
+static const char *termcmd[]  = { "alacritty", NULL };
+static const char *clipcmd[]  = { "clipcat-menu", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
@@ -122,7 +127,9 @@ static const Key keys[] = {
 
     /* 4. LANZADOR Y SALIDA */
     // Ejecuta dmenu en la parte superior para buscar y abrir cualquier aplicación.
-	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
+	{ MODKEY,                       XK_r,      spawn,          {.v = dmenucmd } },
+    // Ejecuta el menu del portapapeles
+	{ MODKEY,                       XK_v,      spawn,          {.v = clipcmd } },
     // Cierra el proceso de dwm (esto finaliza la sesión gráfica y te regresa al login).
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
 
