@@ -1,0 +1,10 @@
+#!/bin/sh
+dmenu_path_fast() {
+	mtime() {
+		# Escanea ejecutables directamente en el PATH
+		ls -1 -- $(echo "$PATH" | tr ':' ' ') 2>/dev/null | sort -u
+	}
+	mtime
+}
+
+dmenu_path_fast | dmenu "$@" | ${SHELL:-/bin/sh} &
