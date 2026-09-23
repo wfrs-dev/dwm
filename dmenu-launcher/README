@@ -1,24 +1,90 @@
 dmenu - dynamic menu
 ====================
-dmenu is an efficient dynamic menu for X.
+
+`dmenu` es un menú dinámico para X, eficiente y ligero. Lee una lista de
+elementos separados por saltos de línea desde `stdin` y muestra un menú para que
+el usuario seleccione uno. Al pulsar Return, el elemento elegido se imprime en
+`stdout` y `dmenu` termina. Escribir texto filtra los elementos que coinciden con
+los tokens introducidos.
+
+Esta es una versión personalizada de **dmenu 5.4** usada como lanzador de
+aplicaciones dentro de este fork de dwm.
 
 
-Requirements
-------------
-In order to build dmenu you need the Xlib header files.
+Características
+---------------
+- **Base:** dmenu 5.4.
+- **`dmenu_run` optimizado:** `dmenu_path_fast` escanea directamente los
+  ejecutables de `$PATH` en lugar de mantener una caché, por lo que el menú
+  siempre refleja el estado actual del sistema.
+- **Tema Arch Linux:** colores azul/gris definidos en `config.def.h`.
+- **Fuente:** `monospace:size=10`.
+- **stest** incluido para probar el motor de dibujo (`drw`).
 
 
-Installation
-------------
-Edit config.mk to match your local setup (dmenu is installed into
-the /usr/local namespace by default).
+Requisitos
+----------
+Para compilar dmenu se necesitan las cabeceras de Xlib, Xinerama, fontconfig y
+Xft (freetype):
 
-Afterwards enter the following command to build and install dmenu
-(if necessary as root):
+- `libX11-devel`
+- `libXinerama-devel`
+- `libXft-devel`
+- `fontconfig-devel`
+
+
+Instalación
+-----------
+Edita `config.mk` según tu sistema (por defecto se instala en `/usr/local`).
+Después ejecuta el siguiente comando para compilar e instalar (si es necesario,
+como root):
 
     make clean install
 
+Se instalan `dmenu`, `dmenu_run` y `stest` en `$(PREFIX)/bin`, junto con sus
+páginas de manual.
 
-Running dmenu
+
+Ejecución
+---------
+`dmenu` lee elementos desde `stdin`:
+
+    ls | dmenu
+
+`dmenu_run` lista los programas de `$PATH` y ejecuta el resultado en `$SHELL`:
+
+    dmenu_run
+
+Consulta la página de manual (`man dmenu`) para ver todas las opciones y
+atajos de teclado.
+
+
+Configuración
 -------------
-See the man page for details.
+La configuración se realiza editando `config.def.h` y recompilando. En la
+primera compilación, `config.h` se genera copiando `config.def.h`; para
+conservar tus cambios, edita `config.h` (o vuelve a copiar desde
+`config.def.h`).
+
+
+Estructura del proyecto
+-----------------------
+```
+.
+├── config.def.h    # Configuración por defecto (colores, fuente, prompt)
+├── config.mk       # Versión, rutas, flags y librerías
+├── Makefile        # Reglas de compilación/instalación
+├── dmenu.c         # Código fuente principal de dmenu
+├── dmenu_run       # Lanzador con escaneo directo de $PATH
+├── drw.c / drw.h   # Utilidades de dibujo (fuentes, colores)
+├── util.c / util.h # Utilidades varias
+├── stest.c         # Probador del motor de dibujo
+├── dmenu.1         # Página de manual de dmenu
+└── stest.1         # Página de manual de stest
+```
+
+
+Licencia
+--------
+Consulta el archivo [LICENSE](LICENSE) para detalles sobre derechos y licencia
+(MIT/X11).
