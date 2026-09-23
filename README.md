@@ -1,3 +1,5 @@
+![dwm](./dwm.png)
+
 # dwm - dynamic window manager
 
 Fork personalizado de **dwm 6.8**, el gestor de ventanas dinámico, extremadamente
